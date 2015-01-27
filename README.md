@@ -10,7 +10,7 @@ generation process needs improvement.
 
 Run the following command in the root directory of your Node-RED install
 
-npm install node-red-contrib-nest
+	npm install node-red-contrib-nest
 
 You will need a Nest device and a <A HREF="https://developer.nest.com">Nest Developer Program</A> account.
 
@@ -18,18 +18,22 @@ Login to the Nest developer portal and create a client app (i.e. Node-Red), choo
 
 From here on in this install is more complicated than it needs to be. This is temporary and will be replaced by an automated process once I setup a GUI config dialog in Node-Red. In the meantime...
 
-Complete the client registration forms, leaving the Redirect URI blank.
+Complete the Nest Developer client app registration forms, leaving the Redirect URI blank to force the PINCODE authentication process.
 
-Follow steps 1 - 3 outlined on the <A HREF="https://developer.nest.com/documentation/cloud/how-to-auth#credentials">How to set up Authorization</A> page of the nest developer portal to generate a PINCODE and exchange it for an access token. Step three can be executed from the command line using the following curl command:
+Follow steps 1 - 3 outlined on the <A HREF="https://developer.nest.com/documentation/cloud/how-to-auth#credentials">How to set up Authorization</A> page of the nest developer portal to generate a PIN and exchange it for an access token. Step three can be executed from the command line using the following curl command:
 
     curl -X POST "https://api.home.nest.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&code=YOUR_PINCODE&client_secret=YOUR_CLIENT_SECRET&grant_type=authorization_code"
 
-Put the access token into the Node-Red nest config when prompted.
+Cut and paste the access token into the Node-Red nest config dialog box. 
 
 
 #Usage
 
-The nest node will appear in it's own "Nest" catagory on the Node-Red pallet. Drag and drop it onto the canvas and configure as you would any other node-red module with both input and output.
+The nest node will appear in it's own "Nest" catagory on the Node-Red pallet. Drag and drop it onto the canvas and configure as you would any other node-red module with both input and output. 
+
+The nest node allows you to select the type of device (thermostat or smoke/CO detector) or structure that you want to query. If the ID field is blank it will return all devices or structures on the account.
+
+The nest node allows you to select "streaming" mode. When streaming is true, the nest node will continuously send messages out whenever there is a change in the data on the device. The nest also sends "null" heartbeat messages every 30 seconds to indicate the connection is still up. If streaming is false, then it acts as a one time request response and emits only one output message for each input message. 
 
 #Disclaimer
 

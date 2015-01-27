@@ -58,7 +58,26 @@ module.exports = function(RED) {
                             outmsg.payload = data;
                             node.send(outmsg);  
                         } catch (e) {
-                            outmsg.payload = chunk.toString();
+                            var esmsg = chunk.toString();
+                            var parts = esmsg.substr(0).split("\n"),
+                                eventType = 'message',
+                                data = [],
+                                i = 0,
+                                line = '';
+                                
+                            for (; i < parts.length; i++) {
+                                line = parts[i].replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '');
+                                if (line.indexOf('event') == 0) {
+                                  eventType = line.replace(/event:?\s*/, '');
+                                } else if (line.indexOf('data') == 0) {
+                                  data = line.replace(/data:?\s*/, '');
+                                } 
+                            }
+
+                            console.log( eventType );
+                            console.log( data );
+                            // TODO parse out "path" and use for topic 
+                            outmsg.payload = data;
                             node.send(outmsg);                           
                         }
                     })
