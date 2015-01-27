@@ -20,7 +20,7 @@ From here on in this install is more complicated than it needs to be. This is te
 
 Complete the Nest Developer client app registration forms, leaving the Redirect URI blank to force the PINCODE authentication process.
 
-Follow steps 1 - 3 outlined on the <A HREF="https://developer.nest.com/documentation/cloud/how-to-auth#credentials">How to set up Authorization</A> page of the nest developer portal to generate a PIN and exchange it for an access token. Step three can be executed from the command line using the following curl command:
+Follow steps 2 - 3 outlined on the <A HREF="https://developer.nest.com/documentation/cloud/how-to-auth#credentials">How to set up Authorization</A> page of the nest developer portal to generate a PIN and exchange it for an access token. Step three can be executed from the command line using the following curl command:
 
     curl -X POST "https://api.home.nest.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&code=YOUR_PINCODE&client_secret=YOUR_CLIENT_SECRET&grant_type=authorization_code"
 
