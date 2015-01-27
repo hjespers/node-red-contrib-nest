@@ -1,0 +1,112 @@
+<script type="text/x-red" data-template-name="nest-config">
+    <div class="form-row">
+        <label for="node-config-input-account"><i class="fa fa-bookmark"></i> Account</label>
+        <input type="text" id="node-config-input-account">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientid"><i class="fa fa-bookmark"></i> Client ID</label>
+        <input class="input-append-left" type="text" id="node-config-input-clientid">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-clientsecret"><i class="fa fa-bookmark"></i> Client Secret</label>
+        <input class="input-append-left" type="text" id="node-config-input-clientsecret">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-pin"><i class="fa fa-bookmark"></i> PIN</label>
+        <input class="input-append-left" type="password" id="node-config-input-pin" style="width: 20%;" >
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-accesstoken"><i class="fa fa-bookmark"></i> Access Token</label>
+        <input class="input-append-left" type="text" id="node-config-input-accesstoken">
+    </div>
+    <div class="form-tips">
+        To obtain these credentials, visit the <a href="https://developer.nest.com">https://developer.nest.com</a>.
+        Once signed up:
+        <ol>
+           <li>click "Clients",</li>
+           <li>click "Register a new client",</li>
+           <li>populate the form for your new client,</li>
+           <li>enter 'Node-Red' as the client name</li>
+           <li>do not enter anything in the 'OAuth Redirect URI' field (this forces the generation of a PIN)</li>
+           <li>click "Create client".</li>
+        </ol>
+        The subsequent app page will contain the "Client ID", "Client secret" and a "Authorization URL" for you 
+        to visit in a browser and generate a one time use PIN.
+    </div>
+</script>
+
+<script type="text/javascript">
+(function() {
+    RED.nodes.registerType('nest-config',{
+        category: 'config',
+        defaults: { 
+            account: {type:"text",required:true}
+        },
+        credentials: {
+            clientid: {type:"text",required:true},
+            clientsecret: {type: "text",required:true},
+            pin: {type: "password",required:true},
+            accesstoken: {type: "password",required:true},
+        },
+        label: function() {
+          return this.account||'nest account';
+        },
+        exportable: false
+    });
+})();
+</script>
+
+<script type="text/x-red" data-template-name="nest request">
+    <div class="form-row">
+        <label for="node-input-nest"><i class="fa fa-user"></i> Account</label>
+        <input type="text" id="node-input-nest">
+    </div>
+    <div class="form-row">
+        <label for="node-input-devicetype"><i class="fa fa-tag"></i> Type</label>
+        <select id="node-input-devicetype" style="width:200px !important">
+            <option value="thermostats">Thermostat(s)</option>
+            <option value="smoke_co_alarms">Smoke Alarm(s)</option>
+            <option value="structures">Structure(s)</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-deviceid"><i class="fa fa-tag"></i> ID</label>
+        <input type="text" id="node-input-deviceid">
+    </div>
+    <div class="form-row">
+        <label for="node-input-streaming"><i class="fa fa-empire"></i> Streaming</label>
+        <select id="node-input-streaming" style="width:125px !important">
+            <option value="false">false</option>
+            <option value="true">true</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="nest request">
+    <p>Nest request node. Queries your NEST account and returns all NEST device data in either continuous streaming mode or a single request/reply.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('nest request',{
+        category: 'Nest',
+        color:"#00AFD8",
+        defaults: {
+            nest: {type:"nest-config",required:true},
+            devicetype: {value:"thermostats"},
+            deviceid: {value:""},
+            streaming: {value:"false"},
+            name: {value:"nest"}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "nest.png",
+        align: "right",
+        label: function() {
+            return this.name||'nest';
+        }
+    });
+</script>

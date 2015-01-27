@@ -1,0 +1,35 @@
+{
+  "name": "node-red-contrib-nest",
+  "version": "0.1.0",
+  "description": "Node-Red module for controlling and getting real-time telemetry from a Nest thermostat or smoke detector",
+  "dependencies": {
+    "request": "~2.14.0"
+  },
+  "keywords": [
+    "node-red",
+    "nest"
+  ],
+  "node-red": {
+    "nodes": {
+      "nest": "nest/nest.js"
+    }
+  },
+  "main": "nest/nest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hjespers/node-red-contrib-nest.git"
+  },
+  "author" : {
+    "name" : "Hans Jespersen",
+    "email" : "hans.jespersen@gmail.com",
+    "url" : "https://github.com/hjespers"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hjespers/node-red-contrib-nest/issues"
+  },
+  "homepage": "https://github.com/hjespers/node-red-contrib-nest"
+}
