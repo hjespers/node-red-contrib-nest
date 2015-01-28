@@ -1,0 +1,14 @@
+TODO
+-put some jQuery into the nest.html that will:
+	1) take the PIN entered by user into the config dialog
+	2) construct and call the Access Token URL (required ClientID + Client Secret + PINCODE)
+	3) parse the resulting JSON
+	4) save the access token in the nest-config
+-map incoming topic name to a nest query URL so upstream nodes can set the device type and name by publishing on topics
+-map the "path" of streaming responses to the output topic so downstream nodes know what device or path the data came from
+-test with more than one device (I just have one)
+-test with smoke detector (I only own a thermostat)
+-decide how to handle the EventSource keep alive messages in streaming mode (it sends a null message now)
+-handle cleanup/disconnect of streaming connections properly (to avoid duplicate or state connections)
+-implement setting (HTTP PATCH) in addition to getting (HTTP GET) of nest endpoints
+-make a dedicated node for getting and setting ETA and Home/Away values so that home automation can be programmed based on estimated time of arrival
