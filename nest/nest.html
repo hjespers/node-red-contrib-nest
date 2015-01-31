@@ -28,7 +28,7 @@
            <li>click "Clients",</li>
            <li>click "Register a new client (I called mine 'Node-Red')",</li>
            <li>populate the forms for your new Node-Red client,</li>
-           <li>do <b>not<b> enter anything in the 'OAuth Redirect URI' field (this forces the generation of a PIN)</li>
+           <li>do <b>not</b> enter anything in the 'OAuth Redirect URI' field (this forces the generation of a PIN)</li>
            <li>click "Create client".</li>
         </ol>
         The clients page will contain the unique "Client ID" and "Client secret" needed in this configuration dialog box.
@@ -82,9 +82,13 @@
             $("#nest-get-pin").click(function() {
                 cid = $("#node-config-input-clientid").val();
                 if ( cid ) {
-                    var pinurl = 'https://home.nest.com/login/oauth2?client_id=' + cid + '&state=STATE'
-                    // launch popup
-                    window.open(pinurl, "Nest PIN generation").focus();
+                    try{ 
+                        var pinurl = 'https://home.nest.com/login/oauth2?client_id=' + cid + '&state=STATE'
+                        // launch popup
+                        window.open(pinurl, "Nest PIN generation").focus();
+                    } catch (e) {
+                        console.log('caught an error: ' + e);
+                    }
                 } else {
                     alert("Client ID is required to get PIN")
                 }
