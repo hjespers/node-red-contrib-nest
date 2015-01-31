@@ -16,16 +16,7 @@ You will need a Nest device and a <A HREF="https://developer.nest.com">Nest Deve
 
 Login to the Nest developer portal and create a client app (i.e. Node-Red), choosing which types of data you wish to make available for read and/or write.
 
-From here on in this install is more complicated than it needs to be. This is temporary and will be replaced by an automated process once I setup a GUI config dialog in Node-Red. In the meantime...
-
-Complete the Nest Developer client app registration forms, leaving the Redirect URI blank to force the PINCODE authentication process.
-
-Follow steps 2 - 3 outlined on the <A HREF="https://developer.nest.com/documentation/cloud/how-to-auth#credentials">How to set up Authorization</A> page of the nest developer portal to generate a PIN and exchange it for an access token. Step three can be executed from the command line using the following curl command:
-
-    curl -X POST "https://api.home.nest.com/oauth2/access_token?client_id=YOUR_CLIENT_ID&code=YOUR_PINCODE&client_secret=YOUR_CLIENT_SECRET&grant_type=authorization_code"
-
-Cut and paste the access token into the Node-Red nest config dialog box. 
-
+Complete the Nest Developer client app registration forms, leaving the Redirect URI blank to enable the PIN CODE authentication process.
 
 #Usage
 
