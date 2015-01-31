@@ -17,7 +17,7 @@ module.exports = function(RED) {
 
     function NestRequestNode(n) {
         RED.nodes.createNode(this,n);
-        this.nestConfig = RED.nodes.getNode(n.nest);
+        this.nestConfig = RED.nodes.getNode(n.account);
         var credentials = this.nestConfig.credentials;
         var device_type = n.devicetype;
         var device_id = n.deviceid;
@@ -92,4 +92,57 @@ module.exports = function(RED) {
     }
 
     RED.nodes.registerType("nest request",NestRequestNode);
+
+    // a RED http endpoint (express really) to call to get around same origin browser restrictions
+    RED.httpAdmin.get('/nest-credentials/:id/:cid/:csec/:pin/auth', function(req, res){
+    //RED.httpAdmin.get('/nest-credentials/:id/auth', function(req, res){        
+        var creds = {};
+        console.log('nest cred called with id=' + req.params.id);
+        console.log('nest cred called with cid=' + req.params.cid);
+        console.log('nest cred called with csec=' + req.params.csec);
+        console.log('nest cred called with pin=' + req.params.pin);
+
+        // if the creds are good, try and exchange them for an access token
+        if (  req.params.cid && req.params.csec && req.params.pin ) {
+            // call nest API to exchange the one time code for an access token
+            var url = 'https://api.home.nest.com/oauth2/access_token?client_id=' + req.params.cid + '&code=' + req.params.pin + '&client_secret=' + req.params.csec + '&grant_type=authorization_code';
+            //clear one time use PIN
+            creds.clientid = req.params.cid;
+            creds.clientsecret = req.params.csec;
+            creds.pin = '';    
+            creds.access_token = '';     
+            RED.nodes.addCredentials(req.params.id,creds);
+            
+            nest.post(url,function(error, response, body) {
+                if (error){
+                    console.log('Error in nest post: ' + error);
+                    res.send("Error");
+                } else if (response.statusCode == 400 || response.statusCode == 403) {
+                    console.log('Unauthorized: ' + util.inspect(body) );
+                    res.send("Unauthorised");
+                } else {
+                    console.log("body: " + util.inspect(body) + "\nStatus: " + response.statusCode); 
+                    //add access token to creds  
+                    try {
+                        var t = JSON.parse( body );
+                        if ( t.access_token ) {
+                            creds.access_token = t.access_token;
+                            console.log('Saving creds = ' + util.inspect(creds));
+                            RED.nodes.addCredentials(req.params.id,creds);
+                        } else {
+                            console.log('no access token in JSON response' + util.inspect(t) );
+                        }
+                    } catch (e) {
+                        console.log ( e );
+                    }
+                    res.send(t.access_token);
+                }
+            });    
+        } else{
+            console.log('missing required creds, cannot auth');
+            console.log('cred = ' + util.inspect(creds));
+            res.send("<h2>missing required fields</h2>");
+        }                    
+    });
+
 };

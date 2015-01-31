@@ -13,11 +13,12 @@
     </div>
     <div class="form-row">
         <label for="node-config-input-pin"><i class="fa fa-bookmark"></i> PIN</label>
-        <input class="input-append-left" type="password" id="node-config-input-pin" style="width: 20%;" >
+        <input class="input-append-left" type="text" id="node-config-input-pin" style="width: 20%;" >
+        <button id="nest-get-token">Generate Token</button>
     </div>
     <div class="form-row">
         <label for="node-config-input-accesstoken"><i class="fa fa-bookmark"></i> Access Token</label>
-        <input class="input-append-left" type="text" id="node-config-input-accesstoken">
+        <input class="input-append-left" type="password" id="node-config-input-accesstoken">
     </div>
     <div class="form-tips">
         To obtain these credentials, visit the <a href="https://developer.nest.com">https://developer.nest.com</a>.
@@ -37,19 +38,47 @@
 
 <script type="text/javascript">
 (function() {
+    var ncnId = null;
+
     RED.nodes.registerType('nest-config',{
         category: 'config',
         defaults: { 
-            account: {type:"text",required:true}
+            account: {value: "My NEST",required:true}
         },
         credentials: {
-            clientid: {type:"text",required:true},
-            clientsecret: {type: "text",required:true},
-            pin: {type: "password",required:true},
+            clientid: {type:"text"},
+            clientsecret: {type: "text"},
+            pin: {type: "text"},
             accesstoken: {type: "password",required:true},
         },
         label: function() {
           return this.account||'nest account';
+        },
+        oneditprepare: function() {
+            //called at launch time
+            ncnId = this.id;
+            $("#nest-get-token").click(function() {
+                //console.log('running nestGetToken()');
+                var cid, csec, pin;
+                cid = $("#node-config-input-clientid").val();
+                csec = $("#node-config-input-clientsecret").val();
+                pin = $("#node-config-input-pin").val();
+                try {
+                    $.get('/nest-credentials/' + ncnId + '/' + cid + '/' + csec + '/' + pin + '/auth',function(data) {
+                        //write access token value back out to the form
+                    if (data != "Error" && data != "Unauthorised") {
+                        $("#node-config-input-accesstoken").val(data); 
+                        alert('Access token generated');                       
+                    } else {
+                        alert('Authorization failed');
+                    }
+                    //console.log("data: " + data);
+                    });
+                } catch(e){
+                    console.log('caught an error: ' + e);
+                }
+                //console.log('finished nestGetToken()');
+            });
         },
         exportable: false
     });
@@ -58,8 +87,8 @@
 
 <script type="text/x-red" data-template-name="nest request">
     <div class="form-row">
-        <label for="node-input-nest"><i class="fa fa-user"></i> Account</label>
-        <input type="text" id="node-input-nest">
+        <label for="node-input-account"><i class="fa fa-user"></i> Account</label>
+        <input type="text" id="node-input-account">
     </div>
     <div class="form-row">
         <label for="node-input-devicetype"><i class="fa fa-tag"></i> Type</label>
@@ -95,11 +124,11 @@
         category: 'Nest',
         color:"#00AFD8",
         defaults: {
-            nest: {type:"nest-config",required:true},
+            name: {value:""},         
+            account: {type:"nest-config",required:true},
             devicetype: {value:"thermostats"},
             deviceid: {value:""},
-            streaming: {value:"false"},
-            name: {value:"nest"}
+            streaming: {value:"false"}
         },
         inputs:1,
         outputs:1,
