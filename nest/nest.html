@@ -12,6 +12,7 @@
         <input class="input-append-left" type="text" id="node-config-input-clientsecret">
     </div>
     <div class="form-row">
+        <button id="nest-get-pin">Generate PIN</button>
         <label for="node-config-input-pin"><i class="fa fa-bookmark"></i> PIN</label>
         <input class="input-append-left" type="text" id="node-config-input-pin" style="width: 20%;" >
         <button id="nest-get-token">Generate Token</button>
@@ -21,19 +22,21 @@
         <input class="input-append-left" type="password" id="node-config-input-accesstoken">
     </div>
     <div class="form-tips">
-        To obtain these credentials, visit the <a href="https://developer.nest.com">https://developer.nest.com</a>.
-        Once signed up:
+        To obtain these credentials, goto <a href="https://developer.nest.com" target="_blank">https://developer.nest.com</a>.
+        Once signed up as a Nest developer:
         <ol>
            <li>click "Clients",</li>
-           <li>click "Register a new client",</li>
-           <li>populate the form for your new client,</li>
-           <li>enter 'Node-Red' as the client name</li>
-           <li>do not enter anything in the 'OAuth Redirect URI' field (this forces the generation of a PIN)</li>
+           <li>click "Register a new client (I called mine 'Node-Red')",</li>
+           <li>populate the forms for your new Node-Red client,</li>
+           <li>do <b>not<b> enter anything in the 'OAuth Redirect URI' field (this forces the generation of a PIN)</li>
            <li>click "Create client".</li>
         </ol>
-        The subsequent app page will contain the "Client ID", "Client secret" and a "Authorization URL" for you 
-        to visit in a browser and generate a one time use PIN.
+        The clients page will contain the unique "Client ID" and "Client secret" needed in this configuration dialog box.
     </div>
+</script>
+
+//</script>
+
 </script>
 
 <script type="text/javascript">
@@ -56,10 +59,9 @@
         },
         oneditprepare: function() {
             //called at launch time
-            ncnId = this.id;
+            ncnId = this.id;               
+            var cid, csec, pin;
             $("#nest-get-token").click(function() {
-                //console.log('running nestGetToken()');
-                var cid, csec, pin;
                 cid = $("#node-config-input-clientid").val();
                 csec = $("#node-config-input-clientsecret").val();
                 pin = $("#node-config-input-pin").val();
@@ -72,12 +74,20 @@
                     } else {
                         alert('Authorization failed');
                     }
-                    //console.log("data: " + data);
                     });
                 } catch(e){
                     console.log('caught an error: ' + e);
                 }
-                //console.log('finished nestGetToken()');
+            });
+            $("#nest-get-pin").click(function() {
+                cid = $("#node-config-input-clientid").val();
+                if ( cid ) {
+                    var pinurl = 'https://home.nest.com/login/oauth2?client_id=' + cid + '&state=STATE'
+                    // launch popup
+                    window.open(pinurl, "Nest PIN generation").focus();
+                } else {
+                    alert("Client ID is required to get PIN")
+                }
             });
         },
         exportable: false
