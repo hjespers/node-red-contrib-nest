@@ -52,7 +52,7 @@ module.exports = function(RED) {
                 }
                 nest({ method: 'GET', url: nesturl, headers: nestheader })
                     .on('data', function(chunk) {
-                        util.log('[nest] ' + chunk);
+                        //util.log('[nest] ' + chunk);
                         try {
                             data = JSON.parse( chunk );
                             outmsg.payload = data;
@@ -73,16 +73,13 @@ module.exports = function(RED) {
                                   data = line.replace(/data:?\s*/, '');
                                 } 
                             }
-
-                            console.log( eventType );
-                            console.log( data );
                             // TODO parse out "path" and use for topic 
                             outmsg.payload = data;
                             node.send(outmsg);                           
                         }
                     })
                     .on('response', function(response) {
-                        util.log('[nest] Nest response status = ' + response.statusCode);
+                        //util.log('[nest] Nest response status = ' + response.statusCode);
                     })
                     .on('error', function(error) {
                         util.log('[nest] on error: ' + error);
