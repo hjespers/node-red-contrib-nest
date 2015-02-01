@@ -12,14 +12,15 @@
         <input class="input-append-left" type="text" id="node-config-input-clientsecret">
     </div>
     <div class="form-row">
-        <button id="nest-get-pin">Generate PIN</button>
-        <label for="node-config-input-pin"><i class="fa fa-bookmark"></i> PIN</label>
-        <input class="input-append-left" type="text" id="node-config-input-pin" style="width: 20%;" >
-        <button id="nest-get-token">Generate Token</button>
+        <label for="node-config-input-pin"><i class="fa fa-bookmark"></i> Pincode</label>
+        <a class="btn" id="nest-get-pin" target="_blank">Authorize</a>
+        <input class="input-append-left" type="text" id="node-config-input-pin" style="width: 20%;" > 
     </div>
     <div class="form-row">
         <label for="node-config-input-accesstoken"><i class="fa fa-bookmark"></i> Access Token</label>
-        <input class="input-append-left" type="password" id="node-config-input-accesstoken">
+        <a class="btn" id="nest-get-token" target="_blank">Generate Token</a>
+        <input class="input-append-left" type="password" id="node-config-input-accesstoken" style="width: 20%;">
+        
     </div>
     <div class="form-tips">
         To obtain these credentials, goto <a href="https://developer.nest.com" target="_blank">https://developer.nest.com</a>.
@@ -33,10 +34,6 @@
         </ol>
         The clients page will contain the unique "Client ID" and "Client secret" needed in this configuration dialog box.
     </div>
-</script>
-
-//</script>
-
 </script>
 
 <script type="text/javascript">
@@ -59,36 +56,34 @@
         },
         oneditprepare: function() {
             //called at launch time
+            $("#node-config-dialog-ok").button("disable");
             ncnId = this.id;               
             var cid, csec, pin;
             $("#nest-get-token").click(function() {
                 cid = $("#node-config-input-clientid").val();
                 csec = $("#node-config-input-clientsecret").val();
                 pin = $("#node-config-input-pin").val();
-                try {
+                if (pin) { //add check for cid and csec too
                     $.get('/nest-credentials/' + ncnId + '/' + cid + '/' + csec + '/' + pin + '/auth',function(data) {
                         //write access token value back out to the form
-                    if (data != "Error" && data != "Unauthorised") {
-                        $("#node-config-input-accesstoken").val(data); 
-                        alert('Access token generated');                       
-                    } else {
-                        alert('Authorization failed');
-                    }
+                        if (data != "Error" && data != "Unauthorised") {
+                            $("#node-config-input-accesstoken").val(data); 
+                            $("#node-config-dialog-ok").button("enable");
+                            alert('Access token generated. Click Update below to save credentials');
+                        } else {
+                            alert('Authorization failed');
+                        }
                     });
-                } catch(e){
-                    console.log('caught an error: ' + e);
+                } else {
+                    alert("PIN is required to generate token")
                 }
-            });
+            });     
             $("#nest-get-pin").click(function() {
                 cid = $("#node-config-input-clientid").val();
                 if ( cid ) {
-                    try{ 
-                        var pinurl = 'https://home.nest.com/login/oauth2?client_id=' + cid + '&state=STATE'
-                        // launch popup
-                        window.open(pinurl, "Nest PIN generation").focus();
-                    } catch (e) {
-                        console.log('caught an error: ' + e);
-                    }
+                    var pinurl = 'https://home.nest.com/login/oauth2?client_id=' + cid + '&state=STATE';
+                    // launch popup
+                    window.open(pinurl, "Nest PIN generation").focus();
                 } else {
                     alert("Client ID is required to get PIN")
                 }
