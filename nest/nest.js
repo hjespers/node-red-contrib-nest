@@ -103,10 +103,10 @@ module.exports = function(RED) {
             
             nest.post(url,function(error, response, body) {
                 if (error){
-                    console.log('Error in nest post: ' + error);
+                    util.log('[nest] Error in nest post: ' + error);
                     res.send("Error");
                 } else if (response.statusCode == 400 || response.statusCode == 403) {
-                    console.log('Unauthorized: ' + util.inspect(body) );
+                    util.log('[nest] Unauthorized: ' + util.inspect(body) );
                     res.send("Unauthorised");
                 } else {
                     //add access token to creds  
@@ -115,7 +115,7 @@ module.exports = function(RED) {
                         if ( t.access_token ) {
                             res.send(t.access_token);
                         } else {
-                            console.log('no access token in JSON response' + util.inspect(t) );
+                            util.log('[nest] no access token in JSON response' + util.inspect(t) );
                             res.send("Error");
                         }
                     } catch (e) {
@@ -124,7 +124,7 @@ module.exports = function(RED) {
                 }
             });    
         } else{
-            console.log('missing required creds, cannot auth');
+            util.log('[nest] missing required creds, cannot auth');
             res.send("Error");
         }                    
     });
