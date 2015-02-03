@@ -82,17 +82,18 @@ module.exports = function(RED) {
                         //util.log('[nest] Nest response status = ' + response.statusCode);
                     })
                     .on('error', function(error) {
-                        util.log('[nest] on error: ' + error);
+                        util.log('[nest] ' + error);
+                        //TODO: not sure how to send error downstream or for debug tab in node-red
+                        outmsg.error = error;
+                        node.send(outmsg);
                     }); 
             });
         } 
     }
-
     RED.nodes.registerType("nest request",NestRequestNode);
 
     // a RED http endpoint (express really) to call to get around same origin browser restrictions
     RED.httpAdmin.get('/nest-credentials/:id/:cid/:csec/:pin/auth', function(req, res){
-        var creds = {};
         // if the creds are good, try and exchange them for an access token
         if (  req.params.cid && req.params.csec && req.params.pin ) {
             // call nest API to exchange the one time code for an access token
@@ -125,4 +126,163 @@ module.exports = function(RED) {
             res.send("Error");
         }                    
     });
+
+    function NestStatus(n) {
+        RED.nodes.createNode(this,n);
+        this.nestConfig = RED.nodes.getNode(n.account);
+        var credentials = this.nestConfig.credentials;
+        var node = this;
+        var state = n.away;
+        var sid = n.structure_id;
+
+        this.on("input", function(msg) {
+            var outmsg = {
+                topic: msg.topic
+            };
+            var err = null;
+            //TODO: check precidance for dynamic msg-based parameters vs static config parameters
+            console.log( sid );
+            console.log( state );
+            console.log( msg.payload.structure_id );
+            console.log( msg.payload.away );
+            if ( !state && msg.payload.away ) { 
+                state = msg.payload.away;
+            }
+            if ( !sid && msg.payload.structure_id ) {
+                sid = msg.payload.structure_id;
+            }
+            //build URL and HTTP PUT form data
+
+            // this works
+            // curl -v -L -X PUT -H '{ "Accept" : "application/json" }' -d '{ "away": "home" }' "https://developer-api.nest.com/structures/J-ZTZp3gbulxKGlF-OhEcxyfYmmqjJsvjPIhjSF8vJCUODEtS405hQ.json?auth=c.F5HZ95RO3qALWmBJyKEEX5FiMFOu5RWnmuMnez7zVCvQ2xrnhbz1FMWFi8S1KWYh4Qx5Q84T82T8LTfvHYVksEaSFbJz8DWrm0pYKAAJqmTaVVf9X0qnwKvcdXRSAS8ESdDmH9yjszse09Ni"
+            // this doesn't 
+            var nesturl = 'https://developer-api.nest.com/structures/' + sid + '.json?auth=' + credentials.accesstoken;
+            var nestheader = { "Accept" : "application/json" };
+            var nestoptions = { 
+                    method: 'PUT',
+                    url: nesturl, 
+                    followAllRedirects: true,
+                    headers: nestheader, 
+                    form: JSON.stringify({ "away": state })
+            };
+            console.log( nesturl );
+            console.log( nestoptions );
+
+            if ( (state == "home" || state == "away") && sid) {           
+                // TODO - check proper error handling
+                nest( nestoptions, function(error, response, body) {
+                    if (error){
+                        util.log('[nest] Error in nest post: ' + error);
+                        outmsg.payload = error;
+                        outmsg.error = 'Error on post to structure';
+                    } else if (response.statusCode == 400 || response.statusCode == 403) {
+                        util.log('[nest] Unauthorized PUT to structure' );
+                        util.log('[nest] body =' + body );
+                        outmsg.error = 'Unauthorized PUT to structure';
+                        outmsg.payload = response.statusCode;
+                    } else if (response.statusCode == 200) {
+                        outmsg.payload = body;
+                    } else {
+                        util.log('[nest] Unexpected reponse ');
+                        outmsg.error = 'Unknown response to post to structure';
+                        outmsg.payload = response.statusCode;
+                    }
+                    node.send(outmsg);  
+                });    
+            } else {
+                util.log('[nest] undefined away state and/or structure ID, skipping calls to nest');
+                err = new Error("undefined away state");
+                outmsg.payload = err;
+                node.send(outmsg);  
+            }
+        });
+    }
+    RED.nodes.registerType("nest status",NestStatus);
+
+   function NestSetTemp(n) {
+        RED.nodes.createNode(this,n);
+        this.nestConfig = RED.nodes.getNode(n.account);
+        var credentials = this.nestConfig.credentials;
+        var node = this;
+        var tid = n.id;
+        var target = Number(n.target);
+        var scale = n.scale;
+
+        this.on("input", function(msg) {
+            var outmsg = {
+                topic: msg.topic
+            };
+            var err = null;
+            //TODO: check precidance for dynamic msg-based parameters vs static config parameters
+            console.log( target );
+            console.log( scale );
+            console.log( tid );
+            console.log( msg.payload.target_temperature_c );
+            console.log( msg.payload.target_temperature_f );
+            console.log( msg.payload.device_id );
+
+            //TODO check target_tempurature_? is a valid number and not a string
+            var nestform = {};
+            if ( scale == "c" && target ) {
+                nestform.target_temperature_c = target;
+            } else if ( scale == "f" && target ) {
+                nestform.target_temperature_f = target;
+            } else if ( !target && msg.payload.target_temperature_c ) { 
+                target = msg.payload.target_temperature_c;
+                scale = "c";
+                nestform.target_temperature_c = target;
+            } else if ( !target && msg.payload.target_temperature_f ) { 
+                target = msg.payload.target_temperature_f;
+                scale = "f";
+                nestform.target_temperature_f = target;
+            }
+
+            if ( !tid && msg.payload.device_id ) {
+                tid = msg.payload.device_id;
+            }
+
+            //build URL and HTTP PUT form data
+            var nesturl = 'https://developer-api.nest.com/devices/thermostats/' + tid + '.json?auth=' + credentials.accesstoken;
+            var nestheader = { "Accept" : "application/json" };
+
+            console.log( nesturl );
+            console.log( util.inspect(nestform) );
+
+            
+            if ( target && scale && tid) {           
+                // TODO - check proper error handling
+                nest( { 
+                    method: 'PUT', //or PATCH maybe???
+                    url: nesturl, 
+                    headers: nestheader, 
+                    form: JSON.stringify(nestform),
+                    followAllRedirects: true
+                }, function(error, response, body) {
+                    if (error){
+                        util.log('[nest] Error on set temp post: ' + error);
+                        outmsg.payload = error;
+                        outmsg.error = 'Error on set temp post';
+                    } else if (response.statusCode == 400 || response.statusCode == 403) {
+                        util.log('[nest] Client Error, status code = response.statusCode'  );
+                        util.log('[nest] body =' + body );
+                        outmsg.error = 'Client Error';
+                        outmsg.payload = response.statusCode;
+                    } else if (response.statusCode == 200) {
+                        outmsg.payload = body;
+                    } else {
+                        util.log('[nest] Unexpected reponse' );
+                        outmsg.error = 'Unknown response to post to structure';
+                        outmsg.payload = response.statusCode;
+                    }
+                    node.send(outmsg);  
+                });    
+            } else {
+                util.log('[nest] undefined target temp and/or device ID, skipping calls to nest');
+                err = new Error("undefined temp or device");
+                outmsg.payload = err;
+                node.send(outmsg);  
+            }
+        });
+    }
+    RED.nodes.registerType("temp",NestSetTemp);
 };

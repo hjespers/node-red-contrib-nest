@@ -133,18 +133,122 @@
         category: 'Nest',
         color:"#00AFD8",
         defaults: {
-            name: {value:""},         
             account: {type:"nest-config",required:true},
             devicetype: {value:"thermostats"},
             deviceid: {value:""},
-            streaming: {value:"false"}
+            streaming: {value:"false"},
+            name: {value:""}
         },
         inputs:1,
         outputs:1,
         icon: "nest.png",
         align: "right",
         label: function() {
-            return this.name||'nest';
+            return this.name||this.devicetype;
         }
     });
 </script>
+
+<script type="text/x-red" data-template-name="nest status">
+    <div class="form-row">
+        <label for="node-input-account"><i class="fa fa-user"></i> Account</label>
+        <input type="text" id="node-input-account">
+    </div>
+    <div class="form-row">
+        <label for="node-input-structure_id"><i class="fa fa-bookmark"></i> Structure ID</label>
+        <input class="input-append-left" type="text" id="node-input-structure_id">
+    </div><div class="form-row">
+        <label for="node-input-away"><i class="fa fa-tasks"></i> Occupancy</label>
+        <select type="text" id="node-input-away" style="width:72%">
+            <option value="null"></option>
+            <option value="home">Home</option>
+            <option value="away">Away</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="nest status">
+    <p>Nest structure occupancy status node. Sets the away state of the target structure to either "home" or "away" or by passing in a message with msg.payload.away set to "home" or "away". Identify the structure by configuring the ID field in the config dialog window or my passing in a message with msg.payload.structure_id set to a string containing the nest structure id.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('nest status',{
+        category: 'Nest',
+        color:"#00AFD8",
+        defaults: {
+            account: {type:"nest-config",required:true},
+            structure_id: {value:"",required:true},
+            away: {value:"",required:true},
+            name: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "nest.png",
+        align: "right",
+        label: function() {
+            return this.name||this.away;
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="temp">
+    <div class="form-row">
+        <label for="node-input-account"><i class="fa fa-user"></i> Account</label>
+        <input type="text" id="node-input-account">
+    </div>
+    <div class="form-row">
+        <label for="node-input-id"><i class="fa fa-bookmark"></i> Device ID</label>
+        <input class="input-append-left" type="text" id="node-input-id">
+    </div><div class="form-row">
+        <label for="node-input-scale"><i class="fa fa-tasks"></i> Scale</label>
+        <select type="text" id="node-input-scale" style="width:72%">
+            <option value=""></option>
+            <option value="c">Celcius</option>
+            <option value="f">Fahrenheit</option>
+        </select>
+    </div>
+    </div><div class="form-row">
+        <label for="node-input-target"><i class="fa fa-tasks"></i> Target Temperature</label>
+        <input type="number" id="node-input-target">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="temp">
+    <p>Nest thermostat temperature node. Sets the target temperature in the config or by passing in a message with msg.payload.target_temperature_c or msg.payload.target_temperature_f set to a numerical value. Identify the structure by configuring the ID field in the config dialog window or my passing in a message with msg.payload.structure_id set to a string containing the nest structure id.</p>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('temp',{
+        category: 'Nest',
+        color:"#00AFD8",
+        defaults: {
+            account: {type:"nest-config",required:true},
+            id: {value:""},
+            target: {value:null},
+            scale: {value:""},
+            name: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "nest.png",
+        align: "right",
+        label: function() {
+            return this.name||this.target + this.scale||"set temp"; //TODO make uppercase
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>
+
