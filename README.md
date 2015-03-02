@@ -2,15 +2,14 @@ node-red-contrib-nest
 =====================
 
 Node-Red (http://nodered.org) nodes for communicating with Nest thermostats and smoke detectors. 
-This is still a work in progress so there are UI bugs and the automation of the OAUTH2 token 
-generation process needs improvement. 
+Allows you to query as well as set parameters including target temperatures and home/away status.
 
 
 #Install
 
-Run the following command in the root directory of your Node-RED install
+Run the following command after you have done a global install of Node-RED
 
-	npm install node-red-contrib-nest
+	sudo npm install -g node-red-contrib-nest
 
 You will need a Nest device and a <A HREF="https://developer.nest.com">Nest Developer Program</A> account.
 
