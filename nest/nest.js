@@ -140,11 +140,7 @@ module.exports = function(RED) {
                 topic: msg.topic
             };
             var err = null;
-            //TODO: check precidance for dynamic msg-based parameters vs static config parameters
-            console.log( sid );
-            console.log( state );
-            console.log( msg.payload.structure_id );
-            console.log( msg.payload.away );
+            //static node config trumps incomming message parameters
             if ( !state && msg.payload.away ) { 
                 state = msg.payload.away;
             }
@@ -152,10 +148,6 @@ module.exports = function(RED) {
                 sid = msg.payload.structure_id;
             }
             //build URL and HTTP PUT form data
-
-            // this works
-            // curl -v -L -X PUT -H '{ "Accept" : "application/json" }' -d '{ "away": "home" }' "https://developer-api.nest.com/structures/J-ZTZp3gbulxKGlF-OhEcxyfYmmqjJsvjPIhjSF8vJCUODEtS405hQ.json?auth=c.F5HZ95RO3qALWmBJyKEEX5FiMFOu5RWnmuMnez7zVCvQ2xrnhbz1FMWFi8S1KWYh4Qx5Q84T82T8LTfvHYVksEaSFbJz8DWrm0pYKAAJqmTaVVf9X0qnwKvcdXRSAS8ESdDmH9yjszse09Ni"
-            // this doesn't 
             var nesturl = 'https://developer-api.nest.com/structures/' + sid + '.json?auth=' + credentials.accesstoken;
             var nestheader = { "Accept" : "application/json" };
             var nestoptions = { 
@@ -213,14 +205,7 @@ module.exports = function(RED) {
                 topic: msg.topic
             };
             var err = null;
-            //TODO: check precidance for dynamic msg-based parameters vs static config parameters
-            console.log( target );
-            console.log( scale );
-            console.log( tid );
-            console.log( msg.payload.target_temperature_c );
-            console.log( msg.payload.target_temperature_f );
-            console.log( msg.payload.device_id );
-
+            //static node config trumps incomming message parameters
             //TODO check target_tempurature_? is a valid number and not a string
             var nestform = {};
             if ( scale == "c" && target ) {
