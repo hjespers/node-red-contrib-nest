@@ -3,5 +3,7 @@ TODO
 -test with more than one device (I just have one)
 -test with smoke detector (I only own a thermostat)
 -decide how to handle the EventSource keep alive messages in streaming mode (it sends a null message now)
--handle cleanup/disconnect of streaming connections properly (to avoid duplicate or state connections)
+-handle cleanup/disconnect of streaming connections properly (to avoid duplicate or stale connections)
 -make a dedicated node for getting and setting ETA so that home automation can be programmed based on estimated time of arrival
+-add support for nest camera
+-fix labels so that "Client ID" should be "Product ID" and "Client Secret" should be "Product Secret"

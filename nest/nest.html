@@ -4,11 +4,11 @@
         <input type="text" id="node-config-input-account">
     </div>
     <div class="form-row">
-        <label for="node-config-input-clientid"><i class="fa fa-bookmark"></i> Client ID</label>
+        <label for="node-config-input-clientid"><i class="fa fa-bookmark"></i> Product ID</label>
         <input class="input-append-left" type="text" id="node-config-input-clientid">
     </div>
     <div class="form-row">
-        <label for="node-config-input-clientsecret"><i class="fa fa-bookmark"></i> Client Secret</label>
+        <label for="node-config-input-clientsecret"><i class="fa fa-bookmark"></i> Product Secret</label>
         <input class="input-append-left" type="text" id="node-config-input-clientsecret">
     </div>
     <div class="form-row">
@@ -26,13 +26,13 @@
         To obtain these credentials, goto <a href="https://developer.nest.com" target="_blank">https://developer.nest.com</a>.
         Once signed up as a Nest developer:
         <ol>
-           <li>click "Clients",</li>
-           <li>click "Register a new client (I called mine 'Node-Red')",</li>
-           <li>populate the forms for your new Node-Red client,</li>
-           <li>do <b>not</b> enter anything in the 'OAuth Redirect URI' field (this forces the generation of a PIN)</li>
-           <li>click "Create client".</li>
+           <li>Click "CREATE NEW PRODUCT",</li>
+           <li>Choose a new product name (I called mine 'Node-Red'),</li>
+           <li>Populate all product details for your new product (including permissions),</li>
+           <li>Do <b>not</b> enter anything in the 'Redirect URI' field (this forces the generation of a PIN)</li>
+           <li>click "CREATE PRODUCT".</li>
         </ol>
-        The clients page will contain the unique "Client ID" and "Client secret" needed in this configuration dialog box.
+        The clients page will contain the unique "Product ID" and "Product secret" needed in this configuration dialog box.
     </div>
 </script>
 
@@ -85,7 +85,7 @@
                     // launch popup
                     window.open(pinurl, "Nest PIN generation").focus();
                 } else {
-                    alert("Client ID is required to get PIN")
+                    alert("Product ID is required to get PIN")
                 }
             });
         },
@@ -105,6 +105,7 @@
             <option value="thermostats">Thermostat(s)</option>
             <option value="smoke_co_alarms">Smoke Alarm(s)</option>
             <option value="structures">Structure(s)</option>
+            <option value="cameras">Camera(s)</option>
         </select>
     </div>
     <div class="form-row">

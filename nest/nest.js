@@ -42,6 +42,9 @@ module.exports = function(RED) {
                     case 'structures':
                         nesturl = nesturl + '/structures';
                         break;
+                    case 'cameras':
+                        nesturl = nesturl + '/devices/cameras';
+                        break;                        
                 }
                 if (device_id) {
                     nesturl = nesturl + '/' + device_id;
