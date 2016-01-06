@@ -49,44 +49,68 @@ module.exports = function(RED) {
                 nesturl = nesturl + '?auth=' + credentials.accesstoken;
                 if (streaming === "true") {
                     nestheader = { "Accept" : "text/event-stream" };
-                }
-                nest({ method: 'GET', url: nesturl, headers: nestheader })
-                    .on('data', function(chunk) {
-                        //util.log('[nest] ' + chunk);
-                        try {
-                            data = JSON.parse( chunk );
-                            outmsg.payload = data;
-                            node.send(outmsg);  
-                        } catch (e) {
-                            var esmsg = chunk.toString();
-                            var parts = esmsg.substr(0).split("\n"),
-                                eventType = 'message',
-                                data = [],
-                                i = 0,
-                                line = '';
-                                
-                            for (; i < parts.length; i++) {
-                                line = parts[i].replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '');
-                                if (line.indexOf('event') == 0) {
-                                  eventType = line.replace(/event:?\s*/, '');
-                                } else if (line.indexOf('data') == 0) {
-                                  data = line.replace(/data:?\s*/, '');
-                                } 
+                    nest({ method: 'GET', url: nesturl, headers: nestheader })
+                        .on('data', function(chunk) {
+                            //util.log('[nest] ' + chunk);
+                            try {
+                                 data = JSON.parse( chunk );
+                                 outmsg.payload = data;
+                                 node.send(outmsg);  
+                            } catch (e) {
+                                 var esmsg = chunk.toString();
+                                 var parts = esmsg.substr(0).split("\n"),
+                                     eventType = 'message',
+                                     data = [],
+                                     i = 0,
+                                     line = '';
+                                    
+                                 for (; i < parts.length; i++) {
+                                     line = parts[i].replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '');
+                                     if (line.indexOf('event') == 0) {
+                                       eventType = line.replace(/event:?\s*/, '');
+                                     } else if (line.indexOf('data') == 0) {
+                                       data = line.replace(/data:?\s*/, '');
+                                     } 
+                                 }
+                                 // TODO parse out "path" and use for topic 
+                                 outmsg.payload = data;
+                                 node.send(outmsg);                           
                             }
-                            // TODO parse out "path" and use for topic 
-                            outmsg.payload = data;
-                            node.send(outmsg);                           
-                        }
-                    })
-                    .on('response', function(response) {
-                        //util.log('[nest] Nest response status = ' + response.statusCode);
-                    })
-                    .on('error', function(error) {
-                        util.log('[nest] ' + error);
-                        //TODO: not sure how to send error downstream or for debug tab in node-red
-                        outmsg.error = error;
-                        node.send(outmsg);
-                    }); 
+                        })
+                        .on('error', function(error) {
+                            util.log('[nest] ' + error);
+                            //TODO: not sure how to send error downstream or for debug tab in node-red
+                            outmsg.error = error;
+                            node.send(outmsg);
+                        }); 
+                } else {
+                    nest({ method: 'GET', url: nesturl, headers: nestheader }, function ( error, response, body ){
+                            try {
+                                data = JSON.parse( body );
+                                outmsg.payload = data;
+                                node.send(outmsg);  
+                            } catch (e) {
+                                var esmsg = body.toString();
+                                var parts = esmsg.substr(0).split("\n"),
+                                    eventType = 'message',
+                                    data = [],
+                                    i = 0,
+                                    line = '';
+                                    
+                                for (; i < parts.length; i++) {
+                                    line = parts[i].replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '');
+                                    if (line.indexOf('event') == 0) {
+                                      eventType = line.replace(/event:?\s*/, '');
+                                    } else if (line.indexOf('data') == 0) {
+                                      data = line.replace(/data:?\s*/, '');
+                                    } 
+                                }
+                                // TODO parse out "path" and use for topic 
+                                outmsg.payload = data;
+                                node.send(outmsg);                           
+                            }
+                    });
+                }
             });
         } 
     }
