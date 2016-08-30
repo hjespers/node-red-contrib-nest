@@ -23,7 +23,7 @@ module.exports = function(RED) {
         var device_id = n.deviceid;
         var streaming = n.streaming;
         var node = this;
-        var data;
+        //var data;
         var nestheader = {};
         
         if (credentials.accesstoken) {
@@ -55,6 +55,7 @@ module.exports = function(RED) {
                     nest({ method: 'GET', url: nesturl, headers: nestheader })
                         .on('data', function(chunk) {
                             //util.log('[nest] ' + chunk);
+                            var data;
                             try {
                                  data = JSON.parse( chunk );
                                  outmsg.payload = data;
@@ -63,7 +64,7 @@ module.exports = function(RED) {
                                  var esmsg = chunk.toString();
                                  var parts = esmsg.substr(0).split("\n"),
                                      eventType = 'message',
-                                     data = [],
+                                     //data = [],
                                      i = 0,
                                      line = '';
                                     
@@ -81,18 +82,23 @@ module.exports = function(RED) {
                             }
                         })
                         .on('error', function(error) {
-                            util.log('[nest] ' + error);
+                            console.log('[nest] ' + error);
                             //TODO: not sure how to send error downstream or for debug tab in node-red
                             outmsg.error = error;
                             node.send(outmsg);
                         }); 
                 } else {
                     nest({ method: 'GET', url: nesturl, headers: nestheader }, function ( error, response, body ){
+                        var data;
+                        if ( util.isNullOrUndefined(body) ) {
+                           console.log('[nest] Null or Undefined response body');
+                        } else {
                             try {
                                 data = JSON.parse( body );
                                 outmsg.payload = data;
                                 node.send(outmsg);  
                             } catch (e) {
+                                console.log('[nest] caught the following error parsing response: ' + e);
                                 var esmsg = body.toString();
                                 var parts = esmsg.substr(0).split("\n"),
                                     eventType = 'message',
@@ -110,8 +116,9 @@ module.exports = function(RED) {
                                 }
                                 // TODO parse out "path" and use for topic 
                                 outmsg.payload = data;
-                                node.send(outmsg);                           
+                                node.send(outmsg);                          
                             }
+                        }
                     });
                 }
             });
