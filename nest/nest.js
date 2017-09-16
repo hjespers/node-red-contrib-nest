@@ -230,7 +230,7 @@ module.exports = function(RED) {
         this.nestConfig = RED.nodes.getNode(n.account);
         var credentials = this.nestConfig.credentials;
         var node = this;
-        var tid = n.id;
+        var tid = n.deviceid;
         var target = Number(n.target);
         var scale = n.scale;
 
