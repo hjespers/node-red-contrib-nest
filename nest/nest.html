@@ -205,8 +205,8 @@
         <input type="text" id="node-input-account">
     </div>
     <div class="form-row">
-        <label for="node-input-id"><i class="fa fa-bookmark"></i> Device ID</label>
-        <input class="input-append-left" type="text" id="node-input-id">
+        <label for="node-input-deviceid"><i class="fa fa-bookmark"></i> Device ID</label>
+        <input class="input-append-left" type="text" id="node-input-deviceid">
     </div><div class="form-row">
         <label for="node-input-scale"><i class="fa fa-tasks"></i> Scale</label>
         <select type="text" id="node-input-scale" style="width:72%">
@@ -235,8 +235,8 @@
         color:"#00AFD8",
         defaults: {
             account: {type:"nest-config",required:true},
-            id: {value:""},
-            target: {value:null},
+            deviceid: {value:""},
+            target: {value:"", validate:RED.validators.number()},
             scale: {value:""},
             name: {value:""}
         },
