@@ -296,7 +296,11 @@ module.exports = function(RED) {
                         outmsg.error = 'Client Error';
                         outmsg.payload = response.statusCode;
                     } else if (response.statusCode == 200) {
-                        outmsg.payload = body;
+                        try {
+                            outmsg.payload = JSON.parse(body)
+                        } catch (e) {
+                            outmsg.payload = body
+                        }
                     } else {
                         util.log('[nest] Unexpected reponse' );
                         outmsg.error = 'Unknown response to post to structure';
