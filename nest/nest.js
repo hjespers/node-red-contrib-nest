@@ -233,6 +233,7 @@ module.exports = function(RED) {
         var tid = n.id;
         var target = Number(n.target);
         var scale = n.scale;
+        var dynamic = target === 0;
 
         this.on("input", function(msg) {
             var outmsg = {
@@ -242,15 +243,15 @@ module.exports = function(RED) {
             //static node config trumps incomming message parameters
             //TODO check target_tempurature_? is a valid number and not a string
             var nestform = {};
-            if ( scale == "c" && target ) {
+            if ( scale == "c" && !dynamic ) {
                 nestform.target_temperature_c = target;
-            } else if ( scale == "f" && target ) {
+            } else if ( scale == "f" && !dynamic ) {
                 nestform.target_temperature_f = target;
-            } else if ( !target && msg.payload.target_temperature_c ) { 
+            } else if ( msg.payload.target_temperature_c ) { 
                 target = msg.payload.target_temperature_c;
                 scale = "c";
                 nestform.target_temperature_c = target;
-            } else if ( !target && msg.payload.target_temperature_f ) { 
+            } else if ( msg.payload.target_temperature_f ) { 
                 target = msg.payload.target_temperature_f;
                 scale = "f";
                 nestform.target_temperature_f = target;
