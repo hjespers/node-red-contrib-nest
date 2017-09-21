@@ -76,9 +76,17 @@ module.exports = function(RED) {
                                        data = line.replace(/data:?\s*/, '');
                                      } 
                                  }
-                                 // TODO parse out "path" and use for topic 
-                                 outmsg.payload = data;
-                                 node.send(outmsg);                           
+                                try {
+                                    var jsonData = JSON.parse(data)
+                                    if (jsonData && jsonData.path) {
+                                        outmsg.topic = jsonData.path;
+                                        outmsg.payload = jsonData.data;
+                                    }
+                                } catch (e) {
+                                    console.log('[nest] ' + e);
+                                    outmsg.error = e;
+                                }
+                                node.send(outmsg);
                             }
                         })
                         .on('error', function(error) {
